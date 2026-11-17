@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+NODES = [
+  { name: "lb",  ip: "192.168.56.10", mem: 1024, cpus: 1, disk: "10GB" },
+  { name: "app1", ip: "192.168.56.13", mem: 2048, cpus: 2, disk: "10GB" },
+  { name: "app2", ip: "192.168.56.14", mem: 2048, cpus: 2, disk: "10GB" },
+  { name: "db",  ip: "192.168.56.11", mem: 2048, cpus: 2, disk: "20GB" },
+  { name: "consul",  ip: "192.168.56.12", mem: 1024, cpus: 1, disk: "10GB" },
+]
+
+admin_pub_key = File.read(File.expand_path("./keys/admin.pub")).strip
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "bento/ubuntu-24.04"
+
+  config.vm.provision "hardening", type: "shell", run: "always",
+    path: "provision/users_set_up.sh",
+    env: { "ADMIN_USER" => "admin", "ADMIN_PUBKEY" => admin_pub_key }
+
+
+  NODES.each do |n|
+    config.vm.define n[:name] do |node|
+      node.vm.hostname = n[:name]
+      node.vm.network "private_network", ip: n[:ip]
+      node.vm.provider "virtualbox" do |vb|
+        vb.memory = n[:mem]
+        vb.cpus   = n.fetch(:cpus, 1)   
+      end
+    end
+  end
+end
