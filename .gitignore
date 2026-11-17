@@ -1,0 +1,5 @@
+# SSH keys: every user creates their own
+infra/keys/
+
+# Vagrant local state
+infra/.vagrant/
