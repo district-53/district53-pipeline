@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>General Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="book-layout">
+        <div class="sidebar">
+            <input type="text" placeholder="search">
+        </div>
+
+        <div class="main-content">
+            <button type="button" class="settings-btn" title="Settings">⚙</button>
+
+            <div class="book-wrapper">
+                <div class="bookmark">bookmark</div>
+                <div class="book">
+                    <div class="page"></div>
+                    <div class="page"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
