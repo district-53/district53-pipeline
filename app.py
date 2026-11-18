@@ -1,23 +1,25 @@
-from flask import Flask, render_template
+from flask import Flask
+from config import Config
+from extensions import db
+from routes.auth_routes import auth_bp
+from routes.book_routes import book_bp
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+    db.init_app(app)
 
-@app.route("/login")
-def login():
-    return render_template("login.html")
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(book_bp)
 
-@app.route("/signup")
-@app.route("/signup/<role>")
-def signup(role="commonfolk"):
-    return render_template("signup.html", role=role)
+    with app.app_context():
+        db.create_all()
 
-@app.route("/book")
-def book():
-    return render_template("book.html")
+    return app
+
+
+app = create_app()
 
 if __name__ == "__main__":
     app.run(debug=True)
