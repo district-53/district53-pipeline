@@ -53,7 +53,10 @@ ssh -V
 .
 ├── Vagrantfile              # VM list and settings
 ├── provision/
-│   └── users_set_up.sh      # creates the admin user, SSH hardening
+│   ├── users_set_up.sh      # creates the admin user, SSH hardening
+│   ├── consul_set_up.sh     # installs and starts the Consul server (consul VM only)
+│   └── consul/
+│       └── consul.hcl       # Consul server config
 ├── keys/
 │   ├── admin                # PRIVATE key  (never commit!)
 │   └── admin.pub            # public key   (copied to all VMs)
@@ -220,19 +223,32 @@ ssh -i keys/admin admin@192.168.56.14    # app2
 ssh -i keys\admin admin@192.168.56.10
 ```
 
-## 7. Run the app on app1 / app2
+---
 
-Provisioning creates the system user `hall`. Run the app as this user (it can read `/etc/hall/app.env`):
+## 7. Consul
+
+The `consul` VM runs a **single Consul server** (service discovery) with the web UI.
+For now, Consul runs standalone: the other VMs are not connected to it yet.
+
+Consul is installed automatically by `provision/consul_set_up.sh` when the VM is created.
+
+### Start and check
 
 ```bash
-vagrant ssh app1
-sudo -u hall /opt/venv/bin/gunicorn --chdir /opt/hall -b 0.0.0.0:8000 app:app
+vagrant up consul
+vagrant ssh consul
+systemctl status consul    # should be "active (running)"
+consul members             # 1 node, status "alive", type "server"
 ```
 
-Check the env file is protected:
+### Web UI
+
+Open in the browser: http://192.168.56.12:8500
+
+### Apply config changes
+
+After you change `provision/consul/consul.hcl`, run:
 
 ```bash
-sudo ls -l /etc/hall/app.env      # -rw-r----- 1 root hall ... app.env
-cat /etc/hall/app.env             # as vagrant/admin without sudo: Permission denied
+vagrant provision consul --provision-with consul
 ```
-
