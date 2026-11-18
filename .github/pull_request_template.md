@@ -1,9 +1,12 @@
 <!-- Title and branch must start with the Jira key: D53-12 Add Nginx load balancer -->
 
 ## Ticket
-D53-___
+[D53-XX](https://district53.atlassian.net/browse/D53-XX)
 
 ## What changed
+-
+
+## Reason of change
 -
 
 ## How to test
