@@ -2,7 +2,9 @@
 set -euo pipefail
 
 #Add user admin
-useradd -m -s /bin/bash "$ADMIN_USER"
+if ! id -u "$ADMIN_USER" >/dev/null 2>&1; then
+  useradd -m -s /bin/bash "$ADMIN_USER"
+fi
 usermod -p '*' "$ADMIN_USER"
 
 SUDO_FILE="/etc/sudoers.d/90-$ADMIN_USER"
