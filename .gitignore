@@ -22,3 +22,5 @@ instance/
 # IDE local settings
 .vscode/
 .idea/
+# Infra secrets for local development
+infra/secrets/
