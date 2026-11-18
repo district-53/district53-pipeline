@@ -109,25 +109,29 @@ Then give access to the private key only to your user.
 
 ---
 
-## 3a. Create the database password
-
-The password must be at least 16 characters. Create it once:
+## 3a. Create the database password + secret key for app VMs
 
 **Linux / macOS:**
 
 ```bash
 mkdir -p secrets
 openssl rand -hex 24 > secrets/db_password
-chmod 600 secrets/db_password
+openssl rand -hex 32 > secrets/secret_key
+chmod 700 secrets
+chmod 600 secrets/*
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-New-Item -ItemType Directory -Force -Path secrets
-$b = New-Object byte[] 24
-[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
-(($b | ForEach-Object { $_.ToString("x2") }) -join "") | Set-Content -NoNewline secrets\db_password
+New-Item -ItemType Directory -Force -Path secrets | Out-Null
+function New-HexSecret($bytes) {
+    $b = New-Object byte[] $bytes
+    [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
+    ($b | ForEach-Object { $_.ToString("x2") }) -join ""
+}
+New-HexSecret 24 | Set-Content -NoNewline secrets\db_password
+New-HexSecret 32 | Set-Content -NoNewline secrets\secret_key
 ```
 ---
 
