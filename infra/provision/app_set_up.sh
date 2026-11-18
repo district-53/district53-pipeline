@@ -21,6 +21,23 @@ if ! id -u "$APP_USER" >/dev/null 2>&1; then
   useradd --system --no-create-home --shell /usr/sbin/nologin "$APP_USER"
 fi
 
+
+install -d -m 750 -o root -g "$APP_USER" "$ENV_DIR"
+
+TMP=$(mktemp "${ENV_FILE}.XXXXXX")
+trap 'rm -f "$TMP"' EXIT
+cat > "$TMP" <<EOF
+# Managed by infra/provision/app_set_up.sh. Manual changes will be overwritten.
+DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
+SECRET_KEY=${SECRET_KEY}
+FLASK_DEBUG=0
+EOF
+chown root:"$APP_USER" "$TMP"
+chmod 640 "$TMP"
+mv "$TMP" "$ENV_FILE"
+trap - EXIT
+
+
 cat > "${APP_DIR}/.env" <<EOF
 DATABASE_URL=postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
 SECRET_KEY=${SECRET_KEY}
@@ -36,4 +53,5 @@ if [[ ! -x "${VENV_DIR}/bin/python" ]]; then
 fi
 "${VENV_DIR}/bin/pip" install -q -r "${APP_DIR}/requirements.txt"
 
-echo "App node ready: .env created at ${APP_DIR}/.env pointing to ${DB_HOST}"
+echo "App node ready: ${ENV_FILE} -> ${DB_USER}@${DB_HOST}/${DB_NAME}, venv ${VENV_DIR}"
+echo "Run the app as '${APP_USER}': sudo -u ${APP_USER} ${VENV_DIR}/bin/gunicorn --chdir ${APP_DIR} -b 0.0.0.0:8000 app:app"
