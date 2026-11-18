@@ -220,3 +220,19 @@ ssh -i keys/admin admin@192.168.56.14    # app2
 ssh -i keys\admin admin@192.168.56.10
 ```
 
+## 7. Run the app on app1 / app2
+
+Provisioning creates the system user `hall`. Run the app as this user (it can read `/etc/hall/app.env`):
+
+```bash
+vagrant ssh app1
+sudo -u hall /opt/venv/bin/gunicorn --chdir /opt/hall -b 0.0.0.0:8000 app:app
+```
+
+Check the env file is protected:
+
+```bash
+sudo ls -l /etc/hall/app.env      # -rw-r----- 1 root hall ... app.env
+cat /etc/hall/app.env             # as vagrant/admin without sudo: Permission denied
+```
+
