@@ -109,6 +109,28 @@ Then give access to the private key only to your user.
 
 ---
 
+## 3a. Create the database password
+
+The password must be at least 16 characters. Create it once:
+
+**Linux / macOS:**
+
+```bash
+mkdir -p secrets
+openssl rand -hex 24 > secrets/db_password
+chmod 600 secrets/db_password
+```
+
+**Windows (PowerShell):**
+
+```powershell
+New-Item -ItemType Directory -Force -Path secrets
+$b = New-Object byte[] 24
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
+(($b | ForEach-Object { $_.ToString("x2") }) -join "") | Set-Content -NoNewline secrets\db_password
+```
+---
+
 ## 4. Do not commit the private key
 
 Make sure `.gitignore` has these lines:

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 #Add user admin
 useradd -m -s /bin/bash "$ADMIN_USER"
@@ -7,6 +8,7 @@ usermod -p '*' "$ADMIN_USER"
 SUDO_FILE="/etc/sudoers.d/90-$ADMIN_USER"
 echo "$ADMIN_USER ALL=(ALL) NOPASSWD:ALL" > "$SUDO_FILE"
 chmod 440 "$SUDO_FILE"
+visudo -cf "$SUDO_FILE" >/dev/null
 
 
 HOME_DIR=$(getent passwd "$ADMIN_USER" | cut -d: -f6)
@@ -22,9 +24,10 @@ passwd -l root >/dev/null
 cat > /etc/ssh/sshd_config.d/00-users_set_up.conf <<'EOF'
 PermitRootLogin no
 PasswordAuthentication no
+KbdInteractiveAuthentication no
 PubkeyAuthentication yes
 EOF
 chmod 644 /etc/ssh/sshd_config.d/00-users_set_up.conf
 
-
-systemctl reload ssh 2>/dev/null || systemctl reload sshd
+sshd -t
+systemctl try-reload-or-restart ssh
