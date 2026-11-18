@@ -2,12 +2,22 @@
 # vi: set ft=ruby :
 
 NODES = [
-  { name: "lb",  ip: "192.168.56.10", mem: 1024, cpus: 1, disk: "10GB" },
-  { name: "app1", ip: "192.168.56.13", mem: 2048, cpus: 2, disk: "10GB" },
-  { name: "app2", ip: "192.168.56.14", mem: 2048, cpus: 2, disk: "10GB" },
-  { name: "db",  ip: "192.168.56.11", mem: 2048, cpus: 2, disk: "20GB" },
-  { name: "consul",  ip: "192.168.56.12", mem: 1024, cpus: 1, disk: "10GB" },
+  { name: "lb",     ip: "192.168.56.10", mem: 1024, cpus: 1, db_client: true},
+  { name: "db",     ip: "192.168.56.11", mem: 2048, cpus: 2 },
+  { name: "consul", ip: "192.168.56.12", mem: 1024, cpus: 1 },
+  { name: "app1",   ip: "192.168.56.13", mem: 2048, cpus: 2, db_client: true},
+  { name: "app2",   ip: "192.168.56.14", mem: 2048, cpus: 2, db_client: true},
 ]
+
+DB_NAME = "hall"
+DB_USER = "hall_app"
+APP_IPS = NODES.select { |n| n[:name].start_with?("app") }.map { |n| n[:ip] }.join(" ")
+DB_IP   = NODES.find { |n| n[:name] == "db" }[:ip]
+
+def db_password
+ file = File.expand_path("./secrets/db_password", __dir__)
+ File.exist?(file) ? File.read(file).strip : ""
+end
 
 admin_pub_key = File.read(File.expand_path("./keys/admin.pub")).strip
 
@@ -27,6 +37,21 @@ Vagrant.configure("2") do |config|
       node.vm.provider "virtualbox" do |vb|
         vb.memory = n[:mem]
         vb.cpus   = n.fetch(:cpus, 1)   
+      end
+
+     if n[:name] == "db"
+       node.vm.provision "db", type: "shell",
+         path: "provision/db_set_up.sh",
+         env: {
+          "DB_NAME"     => DB_NAME,
+          "DB_USER"     => DB_USER,
+          "DB_PASSWORD" => db_password,
+          "DB_LISTEN"   => DB_IP,
+          "APP_IPS"     => APP_IPS,
+         }
+      if n[:db_client]
+        node.vm.provision "db-client", type: "shell",
+          path: "provision/db_client_set_up.sh"
       end
     end
   end

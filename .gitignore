@@ -3,3 +3,6 @@ infra/keys/
 
 # Vagrant local state
 infra/.vagrant/
+
+# Infra secrets for local development
+infra/secrets/
