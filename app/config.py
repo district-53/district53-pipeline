@@ -1,0 +1,12 @@
+import os
+from dotenv import load_dotenv
+
+VM_ENV_FILE = os.getenv("HALL_ENV_FILE", "/etc/hall/app.env")
+if os.path.isfile(VM_ENV_FILE) and os.access(VM_ENV_FILE, os.R_OK):
+    load_dotenv(VM_ENV_FILE)
+load_dotenv()
+
+class Config:
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///local_dev.db")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
