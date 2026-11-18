@@ -2,17 +2,21 @@
 # vi: set ft=ruby :
 
 NODES = [
-  { name: "lb",     ip: "192.168.56.10", mem: 1024, cpus: 1, db_client: true},
   { name: "db",     ip: "192.168.56.11", mem: 2048, cpus: 2 },
   { name: "consul", ip: "192.168.56.12", mem: 1024, cpus: 1 },
   { name: "app1",   ip: "192.168.56.13", mem: 2048, cpus: 2, db_client: true},
   { name: "app2",   ip: "192.168.56.14", mem: 2048, cpus: 2, db_client: true},
+  { name: "lb",     ip: "192.168.56.10", mem: 1024, cpus: 1, db_client: true},
 ]
 
 DB_NAME = "hall"
 DB_USER = "hall_app"
 APP_IPS = NODES.select { |n| n[:name].start_with?("app") }.map { |n| n[:ip] }.join(" ")
 DB_IP   = NODES.find { |n| n[:name] == "db" }[:ip]
+
+#lb setings
+APP_PORT    = "80"         
+LB_STRATEGY = "least_conn"  
 
 def db_password
  file = File.expand_path("./secrets/db_password", __dir__)
@@ -49,10 +53,24 @@ Vagrant.configure("2") do |config|
           "DB_LISTEN"   => DB_IP,
           "APP_IPS"     => APP_IPS,
          }
+      end   
+
       if n[:db_client]
         node.vm.provision "db-client", type: "shell",
           path: "provision/db_client_set_up.sh"
       end
+
+      if n[:name] == "lb"
+        node.vm.network "forwarded_port", guest: 80, host: 8080
+        node.vm.provision "lb", type: "shell",
+          path: "provision/lb_set_up_nginx.sh",
+          env: {
+            "APP_IPS"     => APP_IPS,
+            "APP_PORT"    => APP_PORT,
+            "LB_STRATEGY" => LB_STRATEGY,
+          }
+      end
+
     end
   end
 end
