@@ -109,25 +109,29 @@ Then give access to the private key only to your user.
 
 ---
 
-## 3a. Create the database password
-
-The password must be at least 16 characters. Create it once:
+## 3a. Create the database password + secret key for app VMs
 
 **Linux / macOS:**
 
 ```bash
 mkdir -p secrets
 openssl rand -hex 24 > secrets/db_password
-chmod 600 secrets/db_password
+openssl rand -hex 32 > secrets/secret_key
+chmod 700 secrets
+chmod 600 secrets/*
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-New-Item -ItemType Directory -Force -Path secrets
-$b = New-Object byte[] 24
-[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
-(($b | ForEach-Object { $_.ToString("x2") }) -join "") | Set-Content -NoNewline secrets\db_password
+New-Item -ItemType Directory -Force -Path secrets | Out-Null
+function New-HexSecret($bytes) {
+    $b = New-Object byte[] $bytes
+    [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
+    ($b | ForEach-Object { $_.ToString("x2") }) -join ""
+}
+New-HexSecret 24 | Set-Content -NoNewline secrets\db_password
+New-HexSecret 32 | Set-Content -NoNewline secrets\secret_key
 ```
 ---
 
@@ -214,5 +218,21 @@ ssh -i keys/admin admin@192.168.56.14    # app2
 
 ```powershell
 ssh -i keys\admin admin@192.168.56.10
+```
+
+## 7. Run the app on app1 / app2
+
+Provisioning creates the system user `hall`. Run the app as this user (it can read `/etc/hall/app.env`):
+
+```bash
+vagrant ssh app1
+sudo -u hall /opt/venv/bin/gunicorn --chdir /opt/hall -b 0.0.0.0:8000 app:app
+```
+
+Check the env file is protected:
+
+```bash
+sudo ls -l /etc/hall/app.env      # -rw-r----- 1 root hall ... app.env
+cat /etc/hall/app.env             # as vagrant/admin without sudo: Permission denied
 ```
 

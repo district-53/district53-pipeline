@@ -4,5 +4,23 @@ infra/keys/
 # Vagrant local state
 infra/.vagrant/
 
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables & local SQLite databases
+.env
+*.db
+*.sqlite3
+instance/
+
+# IDE local settings
+.vscode/
+.idea/
 # Infra secrets for local development
 infra/secrets/
