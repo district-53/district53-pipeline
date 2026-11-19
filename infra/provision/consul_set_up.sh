@@ -17,8 +17,7 @@ if ! command -v consul >/dev/null 2>&1; then
   apt-get install -y consul
 fi
 
-install -o consul -g consul -m 640 \
-  /vagrant/provision/consul/consul.hcl /etc/consul.d/consul.hcl
+install -o consul -g consul -m 640 /tmp/consul.hcl /etc/consul.d/consul.hcl
 
 consul validate /etc/consul.d/
 
