@@ -4,27 +4,18 @@ set -euo pipefail
 PG_VERSION=16
 PG_CONF_DIR="/etc/postgresql/${PG_VERSION}/main"
 
-if [[ -z "${DB_PASSWORD:-}" ]]; then
-  echo "ERROR: DB_PASSWORD is empty" >&2
-  exit 1
-fi
-if (( ${#DB_PASSWORD} < 16 )); then
-  echo "ERROR: DB_PASSWORD must be at least 16 characters." >&2
-  exit 1
-fi
-
-
+# postgresql installation
 if ! dpkg -s "postgresql-${PG_VERSION}" >/dev/null 2>&1; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update
   apt-get install -y "postgresql-${PG_VERSION}"
 fi
 
+# postgresql configuration
 cat > "${PG_CONF_DIR}/conf.d/hall.conf" <<EOF
 listen_addresses = 'localhost,${DB_LISTEN}'
 password_encryption = 'scram-sha-256'
 EOF
-
 
 HBA="${PG_CONF_DIR}/pg_hba.conf"
 
@@ -44,7 +35,6 @@ for ip in $APP_IPS; do
   printf 'host    %s      %s  %s/32  scram-sha-256\n' "$DB_NAME" "$DB_USER" "$ip"
 done >> "$HBA"
 
-
 systemctl enable --now postgresql >/dev/null
 systemctl restart postgresql
 
@@ -54,6 +44,7 @@ for _ in $(seq 1 30); do
 done
 pg_isready -h localhost
 
+# create db and user
 export DB_NAME DB_USER DB_PASSWORD
 cd /tmp
 runuser -u postgres -- psql -v ON_ERROR_STOP=1 -q <<'SQL'
@@ -72,6 +63,3 @@ SELECT format('ALTER DATABASE %I OWNER TO %I', :'db_name', :'db_user') \gexec
 
 SELECT format('REVOKE ALL ON DATABASE %I FROM PUBLIC', :'db_name') \gexec
 SQL
-
-echo "PostgreSQL ${PG_VERSION} ready: database '${DB_NAME}', user '${DB_USER}', listening on localhost,${DB_LISTEN}"
-echo "Allowed clients: ${APP_IPS}"
