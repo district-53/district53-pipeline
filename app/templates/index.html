@@ -8,8 +8,8 @@
 <body>
     <div class="card">
         <div class="top-buttons">
-            <a href="/login" class="btn">log in</a>
-            <a href="/signup" class="btn">sign up</a>
+            <a href="{{ url_for('auth.login') }}" class="btn">log in</a>
+            <a href="{{ url_for('auth.signup') }}" class="btn">sign up</a>
         </div>
         <div class="mock-photo">mock photo</div>
     </div>
