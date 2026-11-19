@@ -6,9 +6,9 @@ BASE_NODES = [
   { name: "consul", ip: "192.168.56.12", mem: 1024, cpus: 1 },
 ]
 
-APP_COUNT = 3
+APP_COUNT = 2
 APP_NODES = (1..APP_COUNT).map do |i|
-  { name: "app#{i}", ip: "192.168.56.#{12 + i}", mem: 2048, cpus: 2, db_client: true } 
+  { name: "app#{i}", ip: "192.168.56.#{12 + i}", mem: 2048, cpus: 2, db_client: true, init_db: i == 1 } 
 end 
 
 LB_NODE = { name: "lb", ip: "192.168.56.10", mem: 1024, cpus: 1 }
