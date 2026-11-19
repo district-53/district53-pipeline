@@ -255,3 +255,16 @@ After you change `provision/consul/consul.hcl`, run:
 vagrant provision consul --provision-with consul
 ```
 
+## 8. Scaling app VMs
+
+`APP_COUNT` in the `Vagrantfile` sets the number of app VMs (`app1..appN`, IPs `192.168.56.13`, `.14`, …).
+All app IPs are added to the DB access rules and to the LB config.
+
+If the infrastructure is already running, `vagrant up` does not update `db` and `lb`.
+After you change `APP_COUNT`, re-provision them manually:
+
+```bash
+vagrant up                                  
+vagrant provision db --provision-with db     
+vagrant provision lb --provision-with lb     
+```
