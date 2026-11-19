@@ -26,3 +26,5 @@ instance/
 # Infra secrets for local development
 infra/secrets/
 
+# macOS system files
+.DS_Store

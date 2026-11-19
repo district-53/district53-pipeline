@@ -8,7 +8,23 @@ ENV_FILE="${ENV_DIR}/app.env"
 APP_USER="hall"
 APP_PORT="${APP_PORT:-8000}"
 
-# app user
+if [[ -z "${DB_PASSWORD:-}" ]]; then
+  echo "ERROR: DB_PASSWORD is empty (check infra/secrets/db_password)" >&2
+  exit 1
+fi
+if [[ -z "${SECRET_KEY:-}" ]]; then
+  echo "ERROR: SECRET_KEY is empty (check infra/secrets/secret_key)" >&2
+  exit 1
+fi
+if [[ -z "${S3_ACCESS_KEY:-}" ]]; then
+  echo "ERROR: S3_ACCESS_KEY is empty (check infra/secrets/s3_access_key)" >&2
+  exit 1
+fi
+if [[ -z "${S3_SECRET_KEY:-}" ]]; then
+  echo "ERROR: S3_SECRET_KEY is empty (check infra/secrets/s3_secret_key)" >&2
+  exit 1
+fi
+
 APP_HOME="/var/lib/${APP_USER}"
 if ! id -u "$APP_USER" >/dev/null 2>&1; then
   useradd --system --home-dir "$APP_HOME" --shell /usr/sbin/nologin "$APP_USER"
@@ -22,6 +38,10 @@ cat > "$ENV_FILE" <<EOF
 DATABASE_URL=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
 SECRET_KEY=${SECRET_KEY}
 FLASK_DEBUG=0
+S3_ENDPOINT=${S3_ENDPOINT}
+S3_ACCESS_KEY=${S3_ACCESS_KEY}
+S3_SECRET_KEY=${S3_SECRET_KEY}
+S3_BUCKET=${S3_BUCKET}
 EOF
 chown root:"$APP_USER" "$ENV_FILE"
 chmod 640 "$ENV_FILE"

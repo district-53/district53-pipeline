@@ -114,7 +114,7 @@ Then give access to the private key only to your user.
 
 ---
 
-## 3a. Create the database password + secret key for app VMs
+## 3a. Create secrets (database password, app secret key, S3 keys)
 
 **Linux / macOS:**
 
@@ -122,6 +122,8 @@ Then give access to the private key only to your user.
 mkdir -p secrets
 openssl rand -hex 24 > secrets/db_password
 openssl rand -hex 32 > secrets/secret_key
+openssl rand -hex 16 > secrets/s3_access_key
+openssl rand -hex 32 > secrets/s3_secret_key
 chmod 700 secrets
 chmod 600 secrets/*
 ```
@@ -137,7 +139,10 @@ function New-HexSecret($bytes) {
 }
 New-HexSecret 24 | Set-Content -NoNewline secrets\db_password
 New-HexSecret 32 | Set-Content -NoNewline secrets\secret_key
+New-HexSecret 16 | Set-Content -NoNewline secrets\s3_access_key
+New-HexSecret 32 | Set-Content -NoNewline secrets\s3_secret_key
 ```
+
 ---
 
 ## 4. Do not commit the private key
@@ -147,6 +152,9 @@ Make sure `.gitignore` has these lines:
 ```gitignore
 # SSH keys: every user creates their own
 keys/
+
+# Secrets: every user creates their own
+secrets/
 
 # Vagrant local state
 .vagrant/
