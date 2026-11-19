@@ -19,6 +19,14 @@ if (( ${#SECRET_KEY} < 32 )); then
   echo "ERROR: SECRET_KEY must be at least 32 characters" >&2
   exit 1
 fi
+if [[ -z "${S3_ACCESS_KEY:-}" ]]; then
+  echo "ERROR: S3_ACCESS_KEY is empty (check infra/secrets/s3_access_key)" >&2
+  exit 1
+fi
+if [[ -z "${S3_SECRET_KEY:-}" ]]; then
+  echo "ERROR: S3_SECRET_KEY is empty (check infra/secrets/s3_secret_key)" >&2
+  exit 1
+fi
 if [[ ! -f "${APP_DIR}/requirements.txt" ]]; then
   echo "ERROR: ${APP_DIR}/requirements.txt not found. Is the app folder synced?" >&2
   exit 1
@@ -38,6 +46,10 @@ cat > "$ENV_FILE" <<EOF
 DATABASE_URL=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
 SECRET_KEY=${SECRET_KEY}
 FLASK_DEBUG=0
+S3_ENDPOINT=${S3_ENDPOINT}
+S3_ACCESS_KEY=${S3_ACCESS_KEY}
+S3_SECRET_KEY=${S3_SECRET_KEY}
+S3_BUCKET=${S3_BUCKET}
 EOF
 chown root:"$APP_USER" "$ENV_FILE"
 chmod 640 "$ENV_FILE"
