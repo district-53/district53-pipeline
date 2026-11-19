@@ -76,6 +76,7 @@ Vagrant.configure("2") do |config|
       end
   
       if n[:name] == "consul"
+        node.vm.provision "file", source: "provision/consul/consul.hcl", destination: "/tmp/consul.hcl"
         node.vm.provision "consul", type: "shell",
           path: "provision/consul_set_up.sh"
       end 

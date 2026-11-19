@@ -1,6 +1,7 @@
+import os
 from flask import Flask
 from config import Config
-from extensions import db
+from extensions import db, login_manager
 from routes.auth_routes import auth_bp
 from routes.book_routes import book_bp
 
@@ -9,11 +10,13 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
+    login_manager.init_app(app)
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(book_bp)
 
     with app.app_context():
+        import models
         db.create_all()
 
     return app
