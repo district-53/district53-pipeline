@@ -11,6 +11,8 @@ All VMs are in one shared private network, and you can connect to each of them o
 | `app1`   | Application server #1      | 192.168.56.13 | 2 GB | 2   |
 | `app2`   | Application server #2      | 192.168.56.14 | 2 GB | 2   |
 
+
+
 - OS: **Ubuntu 24.04 LTS** (`bento/ubuntu-24.04`)
 - Network: private (host-only) network `192.168.56.0/24`
 - On every VM, the provisioning script:
@@ -251,4 +253,18 @@ After you change `provision/consul/consul.hcl`, run:
 
 ```bash
 vagrant provision consul --provision-with consul
+```
+
+## 8. Scaling app VMs
+
+`APP_COUNT` in the `Vagrantfile` sets the number of app VMs (`app1..appN`, IPs `192.168.56.13`, `.14`, …).
+All app IPs are added to the DB access rules and to the LB config.
+
+If the infrastructure is already running, `vagrant up` does not update `db` and `lb`.
+After you change `APP_COUNT`, re-provision them manually:
+
+```bash
+vagrant up                                  
+vagrant provision db --provision-with db     
+vagrant provision lb --provision-with lb     
 ```
