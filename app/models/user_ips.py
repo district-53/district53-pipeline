@@ -1,5 +1,5 @@
 from extensions import db
-from utils import now
+from models.utils import now
 
 class IP(db.Model):
     __tablename__ = "user_ips"

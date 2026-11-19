@@ -11,6 +11,8 @@ All VMs are in one shared private network, and you can connect to each of them o
 | `app1`   | Application server #1      | 192.168.56.13 | 2 GB | 2   |
 | `app2`   | Application server #2      | 192.168.56.14 | 2 GB | 2   |
 
+
+
 - OS: **Ubuntu 24.04 LTS** (`bento/ubuntu-24.04`)
 - Network: private (host-only) network `192.168.56.0/24`
 - On every VM, the provisioning script:
@@ -112,7 +114,7 @@ Then give access to the private key only to your user.
 
 ---
 
-## 3a. Create the database password + secret key for app VMs
+## 3a. Create secrets (database password, app secret key, S3 keys)
 
 **Linux / macOS:**
 
@@ -120,6 +122,8 @@ Then give access to the private key only to your user.
 mkdir -p secrets
 openssl rand -hex 24 > secrets/db_password
 openssl rand -hex 32 > secrets/secret_key
+openssl rand -hex 16 > secrets/s3_access_key
+openssl rand -hex 32 > secrets/s3_secret_key
 chmod 700 secrets
 chmod 600 secrets/*
 ```
@@ -135,7 +139,10 @@ function New-HexSecret($bytes) {
 }
 New-HexSecret 24 | Set-Content -NoNewline secrets\db_password
 New-HexSecret 32 | Set-Content -NoNewline secrets\secret_key
+New-HexSecret 16 | Set-Content -NoNewline secrets\s3_access_key
+New-HexSecret 32 | Set-Content -NoNewline secrets\s3_secret_key
 ```
+
 ---
 
 ## 4. Do not commit the private key
@@ -145,6 +152,9 @@ Make sure `.gitignore` has these lines:
 ```gitignore
 # SSH keys: every user creates their own
 keys/
+
+# Secrets: every user creates their own
+secrets/
 
 # Vagrant local state
 .vagrant/
@@ -251,4 +261,18 @@ After you change `provision/consul/consul.hcl`, run:
 
 ```bash
 vagrant provision consul --provision-with consul
+```
+
+## 8. Scaling app VMs
+
+`APP_COUNT` in the `Vagrantfile` sets the number of app VMs (`app1..appN`, IPs `192.168.56.13`, `.14`, …).
+All app IPs are added to the DB access rules and to the LB config.
+
+If the infrastructure is already running, `vagrant up` does not update `db` and `lb`.
+After you change `APP_COUNT`, re-provision them manually:
+
+```bash
+vagrant up                                  
+vagrant provision db --provision-with db     
+vagrant provision lb --provision-with lb     
 ```
