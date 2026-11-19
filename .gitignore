@@ -1,6 +1,7 @@
 # SSH keys: every user creates their own
 infra/keys/
-
+keys/*
+!keys/*.pub
 # Vagrant local state
 infra/.vagrant/
 
@@ -24,3 +25,4 @@ instance/
 .idea/
 # Infra secrets for local development
 infra/secrets/
+

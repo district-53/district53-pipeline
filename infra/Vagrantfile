@@ -1,19 +1,26 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-NODES = [
-  { name: "lb",     ip: "192.168.56.10", mem: 1024, cpus: 1 },
+BASE_NODES = [
   { name: "db",     ip: "192.168.56.11", mem: 2048, cpus: 2 },
   { name: "consul", ip: "192.168.56.12", mem: 1024, cpus: 1 },
-  { name: "app1",   ip: "192.168.56.13", mem: 2048, cpus: 2, db_client: true },
-  { name: "app2",   ip: "192.168.56.14", mem: 2048, cpus: 2, db_client: true },
 ]
+
+APP_COUNT = 3
+APP_NODES = (1..APP_COUNT).map do |i|
+  { name: "app#{i}", ip: "192.168.56.#{12 + i}", mem: 2048, cpus: 2, db_client: true } 
+end 
+
+LB_NODE = { name: "lb", ip: "192.168.56.10", mem: 1024, cpus: 1 }
+
+NODES = BASE_NODES + APP_NODES + [LB_NODE]
 
 DB_NAME = "hall"
 DB_USER = "hall_app"
 APP_IPS = NODES.select { |n| n[:name].start_with?("app") }.map { |n| n[:ip] }.join(" ")
 DB_IP   = NODES.find { |n| n[:name] == "db" }[:ip]
 APP_SRC = File.expand_path("../app", __dir__)
+
 
 #lb setings
 APP_PORT    = "8000"         
