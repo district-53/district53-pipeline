@@ -1,7 +1,5 @@
 from extensions import db
-from models import IP, Exile, Knight, Picture, Spy, User
-from models.knights import KNIGHT_TYPES
-from models.user import ROLES
+from models import Knight, User
 
 def create_user(username, email, password, role, house_id=None, photo_id=None,
                 stats=None, knight_type="regular"):
@@ -33,3 +31,11 @@ def list_users(role=None):
     if role is not None:
         query = query.filter_by(role=role)
     return query.order_by(User.username).all()
+
+
+
+
+def update(instance, **fields):
+    for field_name, value in fields.items():
+        setattr(instance, field_name, value)
+    db.session.commit()
