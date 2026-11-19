@@ -6,12 +6,14 @@ VENV_DIR="/opt/venv"
 ENV_DIR="/etc/hall"
 ENV_FILE="${ENV_DIR}/app.env"
 APP_USER="hall"
+APP_PORT="${APP_PORT:-8000}"
 
 # app user
 APP_HOME="/var/lib/${APP_USER}"
 if ! id -u "$APP_USER" >/dev/null 2>&1; then
   useradd --system --home-dir "$APP_HOME" --shell /usr/sbin/nologin "$APP_USER"
 fi
+install -d -m 750 -o "$APP_USER" -g "$APP_USER" "$APP_HOME"
 
 # env file
 install -d -m 750 -o root -g "$APP_USER" "$ENV_DIR"
@@ -54,7 +56,7 @@ Wants=network-online.target
 User=${APP_USER}
 WorkingDirectory=${APP_DIR}
 EnvironmentFile=${ENV_FILE}
-ExecStart=${VENV_DIR}/bin/gunicorn -b 0.0.0.0:${APP_PORT} --workers 2 --access-logfile - app:app
+ExecStart=${VENV_DIR}/bin/gunicorn -b 0.0.0.0:${APP_PORT} --workers 2 --threads 4 --worker-class gthread --access-logfile - app:app
 Restart=always
 RestartSec=5
 

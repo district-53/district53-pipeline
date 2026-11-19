@@ -12,6 +12,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
+    import models
     app.register_blueprint(auth_bp)
     app.register_blueprint(book_bp)
 
