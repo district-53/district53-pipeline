@@ -10,3 +10,9 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///local_dev.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    S3_ENDPOINT = os.getenv("S3_ENDPOINT")
+    S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY")
+    S3_SECRET_KEY = os.getenv("S3_SECRET_KEY")
+    S3_BUCKET = os.getenv("S3_BUCKET", "avatars")
+
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024 
