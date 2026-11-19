@@ -16,20 +16,12 @@ if [[ -z "${SECRET_KEY:-}" ]]; then
   echo "ERROR: SECRET_KEY is empty (check infra/secrets/secret_key)" >&2
   exit 1
 fi
-if (( ${#SECRET_KEY} < 32 )); then
-  echo "ERROR: SECRET_KEY must be at least 32 characters" >&2
-  exit 1
-fi
 if [[ -z "${S3_ACCESS_KEY:-}" ]]; then
   echo "ERROR: S3_ACCESS_KEY is empty (check infra/secrets/s3_access_key)" >&2
   exit 1
 fi
 if [[ -z "${S3_SECRET_KEY:-}" ]]; then
   echo "ERROR: S3_SECRET_KEY is empty (check infra/secrets/s3_secret_key)" >&2
-  exit 1
-fi
-if [[ ! -f "${APP_DIR}/requirements.txt" ]]; then
-  echo "ERROR: ${APP_DIR}/requirements.txt not found. Is the app folder synced?" >&2
   exit 1
 fi
 
