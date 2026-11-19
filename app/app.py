@@ -5,7 +5,7 @@ from extensions import db, login_manager
 from storage import init_storage
 from routes.auth_routes import auth_bp
 from routes.book_routes import book_bp
-from routes.avatar_routes import avatar_bp
+from routes.picture_routes import picture_bp
 
 def create_app():
     app = Flask(__name__)
@@ -18,7 +18,7 @@ def create_app():
     import models
     app.register_blueprint(auth_bp)
     app.register_blueprint(book_bp)
-    app.register_blueprint(avatar_bp)
+    app.register_blueprint(picture_bp)
 
 
     @app.cli.command("init-db")
