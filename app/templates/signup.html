@@ -8,28 +8,34 @@
 <body>
     <div class="card">
         <div class="roles">
-            <a href="/signup/commonfolk" class="btn {% if role == 'commonfolk' %}active{% endif %}">commonfolk</a>
-            <a href="/signup/knight" class="btn {% if role == 'knight' %}active{% endif %}">knight</a>
-            <a href="/signup/noble" class="btn {% if role == 'noble' %}active{% endif %}">noble</a>
+            <a href="{{ url_for('auth.signup', role='commonfolk') }}" class="btn {% if role == 'commonfolk' %}active{% endif %}">commonfolk</a>
+            <a href="{{ url_for('auth.signup', role='knight') }}" class="btn {% if role == 'knight' %}active{% endif %}">knight</a>
+            <a href="{{ url_for('auth.signup', role='noble') }}" class="btn {% if role == 'noble' %}active{% endif %}">noble</a>
         </div>
 
-        <div class="form-box">
-            <input type="text" placeholder="username">
-            <input type="password" placeholder="password">
+        <form class="form-box" method="post" action="{{ url_for('auth.signup', role=role) }}">
+            <input type="text" name="username" placeholder="username" required>
+            <input type="email" name="email" placeholder="email" required>
+            <input type="password" name="password" placeholder="password" required>
             <div class="upload-box">upload photo</div>
 
             {% if role in ['knight', 'noble'] %}
-                <input type="text" placeholder="house">
+                <select name="house_id" required>
+                    <option value="">choose house</option>
+                    {% for house in houses %}
+                        <option value="{{ house.id }}">{{ house.name }}</option>
+                    {% endfor %}
+                </select>
             {% endif %}
 
             {% if role == 'knight' %}
-                <input type="number" placeholder="strength">
-                <input type="number" placeholder="agility">
-                <input type="number" placeholder="endurance">
+                <input type="number" name="strength" placeholder="strength (1-100)" min="1" max="100" required>
+                <input type="number" name="dexterity" placeholder="dexterity (1-100)" min="1" max="100" required>
+                <input type="number" name="constitution" placeholder="constitution (1-100)" min="1" max="100" required>
             {% endif %}
-        </div>
-
-        <a href="/book" class="btn">confirm</a>
+            <button type="submit" class="btn">confirm</button>
+        </form>
+        <a href="{{ url_for('auth.login') }}">already registered? log in</a>
     </div>
 </body>
 </html>
