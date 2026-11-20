@@ -30,7 +30,8 @@ def signup(role):
     houses = House.query.order_by(House.name).all()
     if request.method == "GET":
         return render_template("signup.html", role=role, houses=houses, form={})
-
+        
+    if request.method == 'POST':
     username = request.form.get("username", "").strip()
     email = request.form.get("email", "").strip().lower()
     password = request.form.get('password', "")
