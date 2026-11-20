@@ -32,43 +32,43 @@ def signup(role):
         return render_template("signup.html", role=role, houses=houses, form={})
         
     if request.method == 'POST':
-    username = request.form.get("username", "").strip()
-    email = request.form.get("email", "").strip().lower()
-    password = request.form.get('password', "")
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get('password', "")
 
-    house_id = None
-    if role in ("knight", "noble"):
-        house_id = request.form.get("house_id", type=int)
+        house_id = None
+        if role in ("knight", "noble"):
+            house_id = request.form.get("house_id", type=int)
 
-    stats = None
-    if role == "knight":
-        stats = {name: request.form.get(name, type=int) for name in STATS}
-        for name, value in stats.items():
-            if value is None or not STAT_MIN <= value <= STAT_MAX:
-                return render_template("signup.html", role=role, houses=houses, form={},
-                                       error=f"{name} must be between {STAT_MIN} and {STAT_MAX}"), 400
+        stats = None
+        if role == "knight":
+            stats = {name: request.form.get(name, type=int) for name in STATS}
+            for name, value in stats.items():
+                if value is None or not STAT_MIN <= value <= STAT_MAX:
+                    return render_template("signup.html", role=role, houses=houses, form={},
+                                        error=f"{name} must be between {STAT_MIN} and {STAT_MAX}"), 400
 
-    photo = request.files.get("photo")
-    has_photo = photo is not None and photo.filename != ""
-    if role in ("knight", "noble") and not has_photo:
-        return render_template("signup.html", role=role, houses=houses, form={},
-                               error="Knights and nobles must upload a photo"), 400
-
-    picture = None
-    if has_photo:
-        try:
-            picture = picture_repo.save_picture(photo)
-        except picture_repo.PictureError as e:
-            db.session.rollback()
+        photo = request.files.get("photo")
+        has_photo = photo is not None and photo.filename != ""
+        if role in ("knight", "noble") and not has_photo:
             return render_template("signup.html", role=role, houses=houses, form={},
-                                   error=str(e)), 400
+                                error="Knights and nobles must upload a photo"), 400
 
-    user = user_repo.create_user(username, email, password, role, house_id=house_id,
-                                 photo_id=picture.id if picture else None, stats=stats)
+        picture = None
+        if has_photo:
+            try:
+                picture = picture_repo.save_picture(photo)
+            except picture_repo.PictureError as e:
+                db.session.rollback()
+                return render_template("signup.html", role=role, houses=houses, form={},
+                                    error=str(e)), 400
 
-    if picture is not None and picture.uploaded_by is None:
-        picture.uploaded_by = user.id
-        db.session.commit()
+        user = user_repo.create_user(username, email, password, role, house_id=house_id,
+                                    photo_id=picture.id if picture else None, stats=stats)
+
+        if picture is not None and picture.uploaded_by is None:
+            picture.uploaded_by = user.id
+            db.session.commit()
 
     login_user(user)
     return redirect(url_for("book.book"))
