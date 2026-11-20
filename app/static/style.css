@@ -296,3 +296,62 @@ a.settings-btn {
     white-space: nowrap;
     font-size: 14px;
 }
+
+.people-list {
+    list-style: none;
+    padding: 0;
+}
+
+.people-list a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+}
+
+.people-list a:hover, .people-list a.active {
+    background: #eaecf0;
+    font-weight: bold;
+}
+
+.bookmarks {
+    position: absolute;
+    top: -36px;
+    left: 40px;
+    display: flex;
+    gap: 6px;
+}
+
+.bookmarks .bookmark {
+    position: static;
+    color: #333;
+    text-decoration: none;
+}
+
+.bookmarks .bookmark.active {
+    background: #eaecf0;
+    font-weight: bold;
+}
+
+.portrait {
+    width: 120px;
+    height: 150px;
+    object-fit: cover;
+    border: 1px solid #98a2b3;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #667085;
+}
+
+.locked {
+    color: #667085;
+}
+
+.people summary {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 6px 0;
+}

@@ -1,6 +1,8 @@
 from extensions import db
 from models import Knight, User
 
+#write
+
 def create_user(username, email, password, role, house_id=None, photo_id=None,
                 stats=None, knight_type="regular"):
 
@@ -10,7 +12,8 @@ def create_user(username, email, password, role, house_id=None, photo_id=None,
     db.session.flush()
 
     if role == "knight":
-        knight = Knight(user_id=user.id, knight_type=knight_type, strength=stats["strength"], dexterity=stats["dexterity"], constitution=stats["constitution"])
+        knight = Knight(user_id=user.id, knight_type=knight_type)
+        knight.set_stats(stats["strength"], stats["dexterity"], stats["constitution"])
         db.session.add(knight)
 
     db.session.commit()
@@ -34,7 +37,7 @@ def list_users(role=None):
     return query.order_by(User.username).all()
 
 
-
+#update
 
 def update(instance, **fields):
     for field_name, value in fields.items():

@@ -2,18 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>General Page</title>
+    <title>{{ 'Book of Knights' if kind == 'knight' else 'Book of Nobles' }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="book-layout">
         <div class="sidebar">
-            <input type="text" placeholder="search">
+            <p>{{ current_user.username }}</p>
 
-            {% if is_knight %}
-                <button type="button" id="gossip-btn" class="btn">gossip</button>
-                <div id="gossip-box" class="gossip-box" style="display: none;"></div>
+            {% if gossip %}
+                <details class="gossip-box">
+                    <summary>gossip</summary>
+                    <strong>{{ gossip.key }}</strong>
+                    <small>{{ 'already used today' if gossip.used_today else 'available today' }}</small>
+                </details>
             {% endif %}
+
+            <details class="people">
+                <summary>{{ 'knights' if kind == 'knight' else 'nobles' }} ({{ people|length }})</summary>
+                <ul class="people-list">
+                    {% for p in people %}
+                        <li>
+                            <a href="{{ url_for('book.book', kind=kind, id=p.id) }}"
+                               class="{% if person and p.id == person.id %}active{% endif %}">{{ p.username }}</a>
+                        </li>
+                    {% else %}
+                        <li>nobody yet</li>
+                    {% endfor %}
+                </ul>
+            </details>
         </div>
 
         <div class="main-content">
@@ -31,79 +48,58 @@
                 {% endwith %}
 
                 <div class="book-wrapper">
-                    <div class="bookmark">page {{ page }} / {{ total_pages }}</div>
+                    <div class="bookmarks">
+                        <a href="{{ url_for('book.book', kind='knight') }}" class="bookmark {% if kind == 'knight' %}active{% endif %}">knights</a>
+                        <a href="{{ url_for('book.book', kind='noble') }}" class="bookmark {% if kind == 'noble' %}active{% endif %}">nobles</a>
+                    </div>
+
                     <div class="book">
-                        {% for i in range(2) %}
-                            <div class="page" data-next-url="{{ url_for('book.book', page=next_page) }}" onclick="window.location.href = this.dataset.nextUrl">
-                                {% if knights[i] is defined %}
-                                    {% set knight = knights[i] %}
-                                    <div class="knight-info">
-                                        <h3>{{ knight.username }}</h3>
-                                        <p>House: {{ knight.house_name }}</p>
-                                        <p>Type: {{ knight.knight_type }}</p>
-
-                                        {% if knight.is_revealed %}
-                                            <div class="stats-box">
-                                                <p>Strength: <b>{{ knight.stats.strength }}</b></p>
-                                                <p>Dexterity: <b>{{ knight.stats.dexterity }}</b></p>
-                                                <p>Constitution: <b>{{ knight.stats.constitution }}</b></p>
-                                            </div>
-                                        {% else %}
-                                            <div class="stats-box hidden-stats">
-                                                <p>Stats: ???</p>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-
-                                    {% if is_knight and not knight.is_revealed %}
-                                        <div class="reveal-area" onclick="event.stopPropagation()">
-                                            <button type="button" class="btn btn-small" data-user-id="{{ knight.user_id }}" onclick="toggleRevealForm(this.dataset.userId)">
-                                                reveal stats
-                                            </button>
-
-                                            <form id="reveal-form-{{ knight.user_id }}"
-                                                  class="reveal-form"
-                                                  method="post"
-                                                  action="{{ url_for('book.reveal_stats', target_id=knight.user_id) }}">
-                                                <input type="hidden" name="page" value="{{ page }}">
-                                                <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
-                                                <button type="submit" class="btn btn-small">confirm</button>
-                                            </form>
-                                        </div>
-                                    {% endif %}
+                        {% if person %}
+                            <div class="page">
+                                {% if person.photo_id %}
+                                    <img class="portrait" src="{{ url_for('pictures.get_picture', picture_id=person.photo_id) }}" alt="{{ person.username }}">
                                 {% else %}
-                                    <p class="empty-page">Empty page</p>
+                                    <div class="portrait">no photo</div>
+                                {% endif %}
+                                <h2>{{ person.username }}</h2>
+                                {% if house %}
+                                    <p>House {{ house.name }}</p>
+                                    <p><i>{{ house.motto }}</i></p>
                                 {% endif %}
                             </div>
-                        {% endfor %}
+
+                            <div class="page">
+                                {% if knight %}
+                                    <h3>Stats{% if knight.knight_type == 'white' %} · White Knight{% endif %}</h3>
+                                    {% if stats %}
+                                        <p>Strength: {{ stats.strength }}</p>
+                                        <p>Dexterity: {{ stats.dexterity }}</p>
+                                        <p>Constitution: {{ stats.constitution }}</p>
+                                    {% else %}
+                                        <p class="locked">hidden</p>
+
+                                        {% if current_user.role == 'knight' and current_user.id != person.id %}
+                                            <details class="reveal-area">
+                                                <summary>reveal stats</summary>
+                                                <form class="reveal-form" method="post"
+                                                      action="{{ url_for('book.reveal_stats', target_id=person.id) }}">
+                                                    <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
+                                                    <button type="submit" class="btn btn-small">confirm</button>
+                                                </form>
+                                            </details>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="page"><p>The book is empty.</p></div>
+                            <div class="page"></div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function toggleRevealForm(userId) {
-            const form = document.getElementById("reveal-form-" + userId);
-            form.style.display = form.style.display === "flex" ? "none" : "flex";
-        }
-
-        const gossipBtn = document.getElementById("gossip-btn");
-        if (gossipBtn) {
-            gossipBtn.addEventListener("click", async () => {
-                const box = document.getElementById("gossip-box");
-                const response = await fetch("{{ url_for('book.get_gossip_key') }}");
-                const data = await response.json();
-
-                box.style.display = "flex";
-                if (response.ok) {
-                    const status = data.used_today ? "already used today" : "available today";
-                    box.innerHTML = `<strong>${data.key}</strong><small>${status}</small>`;
-                } else {
-                    box.textContent = data.error || "Error";
-                }
-            });
-        }
-    </script>
 </body>
 </html>
