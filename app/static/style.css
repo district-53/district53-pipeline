@@ -189,19 +189,6 @@ input {
     overflow: hidden;
 }
 
-.page {
-    flex: 1;
-    padding: 25px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.page:hover {
-    background: #fcfcfd;
-}
-
 .page:first-child {
     border-right: 1px solid #98a2b3;
 }
@@ -353,4 +340,66 @@ a.settings-btn {
     cursor: pointer;
     font-weight: bold;
     padding: 6px 0;
+}
+
+#sidebar-toggle {
+    display: none;
+}
+
+.sidebar-btn {
+    position: fixed;
+    top: 20px;
+    left: 0;
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid #98a2b3;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#sidebar-toggle:checked ~ .sidebar {
+    display: none;
+}
+
+.sidebar {
+    padding-top: 60px;
+}
+
+
+.book {
+    display: flex;
+    width: 900px;
+    height: 560px;
+    border: 1px solid #98a2b3;
+    border-radius: 14px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.page {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+.page:first-child {
+    border-right: 1px solid #98a2b3;
+}
+
+.page h2,
+.page h3,
+.page p {
+    margin: 2px 0;
+}
+
+.page-nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
 }
