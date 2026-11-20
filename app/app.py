@@ -6,6 +6,7 @@ from storage import init_storage
 from routes.auth_routes import auth_bp
 from routes.book_routes import book_bp
 from routes.picture_routes import picture_bp
+from data.add_data import add_people, add_houses
 
 def create_app():
     app = Flask(__name__)
@@ -27,17 +28,9 @@ def create_app():
         db.create_all()
         print("Tables created")
 
-    @app.cli.command("seed-houses")
-    def seed_houses():
-        from models import House
-        houses = [("Stark", "Winter is coming"), ("Lannister", "Hear me roar"),
-                ("Targaryen", "Fire and blood"), ("Baratheon", "Ours is the fury"),
-                ("Tyrell", "Growing strong")]
-        for name, motto in houses:
-            if not House.query.filter_by(name=name).first():
-                db.session.add(House(name=name, motto=motto))
-        db.session.commit()
-        print("Houses ready")
+    app.cli.command("add-people")(add_people)
+
+    app.cli.command("add-houses")(add_houses)
 
     return app
 
