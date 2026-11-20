@@ -2,23 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>General Page</title>
+    <title>{{ 'Book of Knights' if kind == 'knight' else 'Book of Nobles' }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="book-layout">
         <div class="sidebar">
-            <input type="text" placeholder="search">
+            <p>{{ current_user.username }}</p>
+
+            <details class="people">
+                <summary>{{ 'knights' if kind == 'knight' else 'nobles' }} ({{ people|length }})</summary>
+                <ul class="people-list">
+                    {% for p in people %}
+                        <li>
+                            <a href="{{ url_for('book.book', kind=kind, id=p.id) }}"
+                               class="{% if person and p.id == person.id %}active{% endif %}">{{ p.username }}</a>
+                        </li>
+                    {% else %}
+                        <li>nobody yet</li>
+                    {% endfor %}
+                </ul>
+            </details>
         </div>
 
         <div class="main-content">
-            <button type="button" class="settings-btn" title="Settings">⚙</button>
+            <a href="{{ url_for('auth.logout') }}" class="settings-btn" title="Log out">⚙</a>
 
             <div class="book-wrapper">
-                <div class="bookmark">bookmark</div>
+                <div class="bookmarks">
+                    <a href="{{ url_for('book.book', kind='knight') }}" class="bookmark {% if kind == 'knight' %}active{% endif %}">knights</a>
+                    <a href="{{ url_for('book.book', kind='noble') }}" class="bookmark {% if kind == 'noble' %}active{% endif %}">nobles</a>
+                </div>
+
                 <div class="book">
-                    <div class="page"></div>
-                    <div class="page"></div>
+                    {% if person %}
+                        <div class="page">
+                            {% if person.photo_id %}
+                                <img class="portrait" src="{{ url_for('pictures.get_picture', picture_id=person.photo_id) }}" alt="{{ person.username }}">
+                            {% else %}
+                                <div class="portrait">no photo</div>
+                            {% endif %}
+                            <h2>{{ person.username }}</h2>
+                            {% if house %}
+                                <p>House {{ house.name }}</p>
+                                <p><i>{{ house.motto }}</i></p>
+                            {% endif %}
+                        </div>
+
+                        <div class="page">
+                            {% if knight %}
+                                <h3>Stats{% if knight.knight_type == 'white' %} · White Knight{% endif %}</h3>
+                                {% if stats %}
+                                    <p>Strength: {{ stats.strength }}</p>
+                                    <p>Dexterity: {{ stats.dexterity }}</p>
+                                    <p>Constitution: {{ stats.constitution }}</p>
+                                {% else %}
+                                    <p class="locked">hidden</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="page"><p>The book is empty.</p></div>
+                        <div class="page"></div>
+                    {% endif %}
                 </div>
             </div>
         </div>

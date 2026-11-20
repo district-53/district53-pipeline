@@ -1,9 +1,7 @@
-import json
 from extensions import db
-from models.utils import today
-from flask import current_app as app
 
 KNIGHT_TYPES = ("regular", "white")
+
 
 class Knight(db.Model):
     __tablename__ = "knights"
@@ -12,7 +10,7 @@ class Knight(db.Model):
         db.CheckConstraint("dexterity BETWEEN 1 AND 100", name="ck_knight_dexterity"),
         db.CheckConstraint("constitution BETWEEN 1 AND 100", name="ck_knight_constitution"),
     )
-    
+
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     knight_type = db.Column(db.Enum(*KNIGHT_TYPES, name="knight_type"), nullable=False)
     strength = db.Column(db.Integer, nullable=False)
@@ -22,7 +20,13 @@ class Knight(db.Model):
     key_date = db.Column(db.Date)
 
     def set_stats(self, strength, dexterity, constitution):
-        self.stats = json.dumps({"strength": strength, "dexterity": dexterity, "constitution": constitution})
+        self.strength = strength
+        self.dexterity = dexterity
+        self.constitution = constitution
 
-    def get_stats(self):
-        return json.loads(self.stats)
+    def get_stats(self) -> dict:
+        return {
+            "strength": self.strength,
+            "dexterity": self.dexterity,
+            "constitution": self.constitution,
+        }
