@@ -22,7 +22,7 @@
             <input type="password" name="password" placeholder="password" required>
 
             <label class="upload-box">
-                upload photo{% if role in ['knight', 'noble'] %} (required){% else %} (optional){% endif %}
+                upload photo{% if role in ['knight', 'noble'] %} (required){% endif %}
                 <input type="file" name="photo" accept="image/jpeg,image/png,image/webp"
                        {% if role in ['knight', 'noble'] %}required{% endif %}>
             </label>
