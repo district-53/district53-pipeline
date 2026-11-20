@@ -291,6 +291,10 @@ a.settings-btn {
     text-decoration: none;
 }
 
+.error {
+    color: #c0392b;
+    font-weight: bold;
+}
 .gossip-box strong {
     white-space: nowrap;
     font-size: 14px;
