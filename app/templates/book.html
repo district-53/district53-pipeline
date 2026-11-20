@@ -27,12 +27,17 @@
                             <summary>reveal stats</summary>
                             <form class="reveal-form" method="post"
                                   action="{{ url_for('book.reveal_stats', target_id=entry.person.id) }}">
+                                <input type="hidden" name="house" value="{{ house }}">
                                 <input type="hidden" name="spread" value="{{ spread }}">
                                 <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
                                 <button type="submit" class="btn btn-small">confirm</button>
                             </form>
                         </details>
                     {% endif %}
+                {% endif %}
+
+                {% if current_user.role == 'noble' and current_user.house_id and entry.person.house_id == current_user.house_id %}
+                    <button type="button" class="btn btn-small" disabled>exile</button>
                 {% endif %}
             {% endif %}
         {% endif %}
@@ -65,7 +70,7 @@
                 <summary>{{ 'knights' if kind == 'knight' else 'nobles' }} ({{ people|length }})</summary>
                 <ul class="people-list">
                     {% for p in people %}
-                        <li><a href="{{ url_for('book.book', kind=kind, spread=loop.index0 // 2) }}">{{ p.username }}</a></li>
+                        <li><a href="{{ url_for('book.book', kind=kind, house=house, spread=loop.index0 // 2) }}">{{ p.username }}</a></li>
                     {% else %}
                         <li>nobody yet</li>
                     {% endfor %}
@@ -74,6 +79,10 @@
         </div>
 
         <div class="main-content">
+            {% if kind == 'knight' %}
+                <a href="{{ url_for('book.book', kind='noble') }}" class="book-edge book-edge-top">Book of Nobles</a>
+            {% endif %}
+
             <a href="{{ url_for('auth.logout') }}" class="settings-btn" title="Log out">⏻</a>
 
             <div class="center-column">
@@ -89,8 +98,10 @@
 
                 <div class="book-wrapper">
                     <div class="bookmarks">
-                        <a href="{{ url_for('book.book', kind='knight') }}" class="bookmark {% if kind == 'knight' %}active{% endif %}">knights</a>
-                        <a href="{{ url_for('book.book', kind='noble') }}" class="bookmark {% if kind == 'noble' %}active{% endif %}">nobles</a>
+                        <a href="{{ url_for('book.book', kind=kind, house=0) }}" class="bookmark {% if house == 0 %}active{% endif %}">all</a>
+                        {% for h in houses %}
+                            <a href="{{ url_for('book.book', kind=kind, house=h.id) }}" class="bookmark {% if house == h.id %}active{% endif %}">{{ h.name }}</a>
+                        {% endfor %}
                     </div>
 
                     <div class="book">
@@ -105,14 +116,18 @@
 
                     <div class="page-nav">
                         {% if spread > 0 %}
-                            <a href="{{ url_for('book.book', kind=kind, spread=spread - 1) }}" class="btn">‹</a>
+                            <a href="{{ url_for('book.book', kind=kind, house=house, spread=spread - 1) }}" class="btn">‹</a>
                         {% endif %}
                         {% if has_next %}
-                            <a href="{{ url_for('book.book', kind=kind, spread=spread + 1) }}" class="btn">›</a>
+                            <a href="{{ url_for('book.book', kind=kind, house=house, spread=spread + 1) }}" class="btn">›</a>
                         {% endif %}
                     </div>
                 </div>
             </div>
+
+            {% if kind == 'noble' %}
+                <a href="{{ url_for('book.book', kind='knight') }}" class="book-edge book-edge-bottom">Book of Knights</a>
+            {% endif %}
         </div>
     </div>
 </body>

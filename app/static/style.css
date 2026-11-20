@@ -189,6 +189,19 @@ input {
     overflow: hidden;
 }
 
+.page {
+    flex: 1;
+    padding: 25px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.page:hover {
+    background: #fcfcfd;
+}
+
 .page:first-child {
     border-right: 1px solid #98a2b3;
 }
@@ -278,6 +291,10 @@ a.settings-btn {
     text-decoration: none;
 }
 
+.error {
+    color: #c0392b;
+    font-weight: bold;
+}
 .gossip-box strong {
     white-space: nowrap;
     font-size: 14px;
@@ -346,49 +363,8 @@ a.settings-btn {
     display: none;
 }
 
-.sidebar-btn {
-    position: fixed;
-    top: 20px;
-    left: 0;
-    padding: 8px 10px;
-    background: #fff;
-    border: 1px solid #98a2b3;
-    border-radius: 0 8px 8px 0;
-    cursor: pointer;
-    z-index: 10;
-}
-
 #sidebar-toggle:checked ~ .sidebar {
     display: none;
-}
-
-.sidebar {
-    padding-top: 60px;
-}
-
-
-.book {
-    display: flex;
-    width: 900px;
-    height: 560px;
-    border: 1px solid #98a2b3;
-    border-radius: 14px;
-    background: #ffffff;
-    overflow: hidden;
-}
-
-.page {
-    flex: 1;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    overflow-y: auto;
-}
-
-.page:first-child {
-    border-right: 1px solid #98a2b3;
 }
 
 .page h2,
@@ -402,4 +378,49 @@ a.settings-btn {
     justify-content: center;
     gap: 16px;
     margin-top: 12px;
+}
+
+.bookmarks {
+    left: 20px;
+    flex-wrap: nowrap;
+}
+
+.bookmarks .bookmark {
+    padding: 8px 12px;
+}
+
+.book-edge {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 44px;
+    background: #ffffff;
+    border: 1px solid #98a2b3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.book-edge:hover {
+    background: #eaecf0;
+}
+
+.book-edge-bottom {
+    bottom: 0;
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+}
+
+.book-edge-top {
+    top: 0;
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+}
+
+.bookmarks {
+    flex-wrap: wrap;
 }
