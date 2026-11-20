@@ -7,8 +7,11 @@
 </head>
 <body>
     <div class="book-layout">
+        <!-- Ліва панель -->
         <div class="sidebar">
-            <p>{{ current_user.username }}</p>
+            <p>
+                <strong>{{ current_user.username }}</strong>
+            </p>
 
             {% if gossip %}
                 <details class="gossip-box">
@@ -18,7 +21,7 @@
                 </details>
             {% endif %}
 
-            <details class="people">
+            <details class="people" open>
                 <summary>{{ 'knights' if kind == 'knight' else 'nobles' }} ({{ people|length }})</summary>
                 <ul class="people-list">
                     {% for p in people %}
@@ -27,15 +30,14 @@
                                class="{% if person and p.id == person.id %}active{% endif %}">{{ p.username }}</a>
                         </li>
                     {% else %}
-                        <li>nobody yet</li>
+                        <li class="empty-page">nobody yet</li>
                     {% endfor %}
                 </ul>
             </details>
         </div>
 
+        <!-- Центральна область -->
         <div class="main-content">
-            <a href="{{ url_for('auth.logout') }}" class="settings-btn" title="Log out">⏻</a>
-
             <div class="center-column">
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
@@ -53,48 +55,67 @@
                         <a href="{{ url_for('book.book', kind='noble') }}" class="bookmark {% if kind == 'noble' %}active{% endif %}">nobles</a>
                     </div>
 
-                    <div class="book">
-                        {% if person %}
-                            <div class="page">
-                                {% if person.photo_id %}
-                                    <img class="portrait" src="{{ url_for('pictures.get_picture', picture_id=person.photo_id) }}" alt="{{ person.username }}">
-                                {% else %}
-                                    <div class="portrait">no photo</div>
-                                {% endif %}
-                                <h2>{{ person.username }}</h2>
-                                {% if house %}
-                                    <p>House {{ house.name }}</p>
-                                    <p><i>{{ house.motto }}</i></p>
-                                {% endif %}
-                            </div>
-
-                            <div class="page">
-                                {% if knight %}
-                                    <h3>Stats{% if knight.knight_type == 'white' %} · White Knight{% endif %}</h3>
-                                    {% if stats %}
-                                        <p>Strength: {{ stats.strength }}</p>
-                                        <p>Dexterity: {{ stats.dexterity }}</p>
-                                        <p>Constitution: {{ stats.constitution }}</p>
-                                    {% else %}
-                                        <p class="locked">hidden</p>
-
-                                        {% if current_user.role == 'knight' and current_user.id != person.id %}
-                                            <details class="reveal-area">
-                                                <summary>reveal stats</summary>
-                                                <form class="reveal-form" method="post"
-                                                      action="{{ url_for('book.reveal_stats', target_id=person.id) }}">
-                                                    <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
-                                                    <button type="submit" class="btn btn-small">confirm</button>
-                                                </form>
-                                            </details>
+                    <!-- Контейнер для книги та кнопок праворуч від неї -->
+                    <div class="book-row">
+                        <div class="book">
+                            {% if person %}
+                                <!-- Ліва сторінка книги -->
+                                <div class="page">
+                                    <div>
+                                        {% if person.photo_id %}
+                                            <img class="portrait" src="{{ url_for('pictures.get_picture', picture_id=person.photo_id) }}" alt="{{ person.username }}">
+                                        {% else %}
+                                            <div class="portrait">no photo</div>
                                         {% endif %}
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        {% else %}
-                            <div class="page"><p>The book is empty.</p></div>
-                            <div class="page"></div>
-                        {% endif %}
+                                        <h2>{{ person.username }}</h2>
+                                        {% if house %}
+                                            <p>House {{ house.name }}</p>
+                                            <p><i>{{ house.motto }}</i></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Права сторінка книги -->
+                                <div class="page">
+                                    <div>
+                                        {% if knight %}
+                                            <h3>Stats{% if knight.knight_type == 'white' %} · White Knight{% endif %}</h3>
+                                            {% if stats %}
+                                                <p>Strength: {{ stats.strength }}</p>
+                                                <p>Dexterity: {{ stats.dexterity }}</p>
+                                                <p>Constitution: {{ stats.constitution }}</p>
+                                            {% else %}
+                                                <p class="locked">hidden</p>
+
+                                                {% if current_user.role == 'knight' and current_user.id != person.id %}
+                                                    <details class="reveal-area">
+                                                        <summary>reveal stats</summary>
+                                                        <form class="reveal-form" method="post"
+                                                              action="{{ url_for('book.reveal_stats', target_id=person.id) }}">
+                                                            <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
+                                                            <button type="submit" class="btn btn-small">confirm</button>
+                                                        </form>
+                                                    </details>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="page"><p class="empty-page">The book is empty.</p></div>
+                                <div class="page"></div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Колонка кнопок праворуч від книги, вирівняна по верхньому краю .book -->
+                        <div class="book-side-actions">
+                            <a href="{{ url_for('profile.view_profile', user_id=current_user.id) }}" class="logout-btn" title="My Profile">
+                                Profile
+                            </a>
+                            <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Log out">
+                                Log out ⏻
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
