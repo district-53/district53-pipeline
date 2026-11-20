@@ -9,5 +9,5 @@ class Picture(db.Model):
     size_bytes = db.Column(db.Integer, nullable=False)
     extension = db.Column(db.String(16), nullable=False)
     sha256_hash = db.Column(db.String(64), unique=True, nullable=False)
-    uploaded_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    uploaded_by = db.Column(db.Integer, db.ForeignKey("users.id", use_alter=True, name="fk_pictures_uploaded_by"))
     created_at = db.Column(db.DateTime(timezone=True), default=now, nullable=False)

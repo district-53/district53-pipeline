@@ -1,13 +1,12 @@
-import secrets
+import hashlib
+import random
+import string
+
 from extensions import db
 from models.knights import Knight
 from models.spy import Spy
 from models.user import User
-from models.utils import today
-import hashlib
-import random
-import string
-from models.utils import now
+from models.utils import now, today
 from repositories.user_repo import update
 
 
@@ -58,11 +57,16 @@ def get_or_create_daily_gossip(knight_id: int) -> dict:
 
 
 def show_stats(target_knight: Knight) -> dict:
-    return target_knight.get_stats()
+    return {
+        "strength": target_knight.strength,
+        "dexterity": target_knight.dexterity,
+        "constitution": target_knight.constitution,
+    }
 
 
 def use_gossip_key(viewer: User, target_entered_id: int, entered_key: str) -> dict:
-    if viewer.role != "knight" or not viewer.knight:
+    viewer_knight = db.session.get(Knight, viewer.id)
+    if viewer.role != "knight" or not viewer_knight:
         raise ValueError("Only knights can use gossip keys")
 
     if viewer.id == target_entered_id:
@@ -78,10 +82,10 @@ def use_gossip_key(viewer: User, target_entered_id: int, entered_key: str) -> di
     if has_used_today(viewer.id):
         raise ValueError("You have already used your gossip key today")
 
-    if viewer.knight.key_date != today() or not viewer.knight.gossip_key:
+    if viewer_knight.key_date != today() or not viewer_knight.gossip_key:
         raise ValueError("Your gossip key has expired, refresh the page")
 
-    if entered_key != viewer.knight.gossip_key:
+    if entered_key != viewer_knight.gossip_key:
         raise ValueError("Invalid gossip key")
 
     reveal = Spy(

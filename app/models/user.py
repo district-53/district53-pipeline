@@ -13,7 +13,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(32), unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.Enum(*ROLES), name="role", nullable=False)
+    role = db.Column(db.Enum(*ROLES, name="user_role"), nullable=False)
     photo_id = db.Column(db.Integer, db.ForeignKey("pictures.id"))
     house_id = db.Column(db.Integer, db.ForeignKey("houses.id"))
     is_exiled = db.Column(db.Boolean, default=False, nullable=False)

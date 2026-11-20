@@ -9,19 +9,101 @@
     <div class="book-layout">
         <div class="sidebar">
             <input type="text" placeholder="search">
+
+            {% if is_knight %}
+                <button type="button" id="gossip-btn" class="btn">gossip</button>
+                <div id="gossip-box" class="gossip-box" style="display: none;"></div>
+            {% endif %}
         </div>
 
         <div class="main-content">
-            <button type="button" class="settings-btn" title="Settings">⚙</button>
+            <a href="{{ url_for('auth.logout') }}" class="settings-btn" title="Log out">⏻</a>
 
-            <div class="book-wrapper">
-                <div class="bookmark">bookmark</div>
-                <div class="book">
-                    <div class="page"></div>
-                    <div class="page"></div>
+            <div class="center-column">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-box">
+                            {% for msg in messages %}
+                                <div>{{ msg }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="book-wrapper">
+                    <div class="bookmark">page {{ page }} / {{ total_pages }}</div>
+                    <div class="book">
+                        {% for i in range(2) %}
+                            <div class="page" data-next-url="{{ url_for('book.book', page=next_page) }}" onclick="window.location.href = this.dataset.nextUrl">
+                                {% if knights[i] is defined %}
+                                    {% set knight = knights[i] %}
+                                    <div class="knight-info">
+                                        <h3>{{ knight.username }}</h3>
+                                        <p>House: {{ knight.house_name }}</p>
+                                        <p>Type: {{ knight.knight_type }}</p>
+
+                                        {% if knight.is_revealed %}
+                                            <div class="stats-box">
+                                                <p>Strength: <b>{{ knight.stats.strength }}</b></p>
+                                                <p>Dexterity: <b>{{ knight.stats.dexterity }}</b></p>
+                                                <p>Constitution: <b>{{ knight.stats.constitution }}</b></p>
+                                            </div>
+                                        {% else %}
+                                            <div class="stats-box hidden-stats">
+                                                <p>Stats: ???</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if is_knight and not knight.is_revealed %}
+                                        <div class="reveal-area" onclick="event.stopPropagation()">
+                                            <button type="button" class="btn btn-small" data-user-id="{{ knight.user_id }}" onclick="toggleRevealForm(this.dataset.userId)">
+                                                reveal stats
+                                            </button>
+
+                                            <form id="reveal-form-{{ knight.user_id }}"
+                                                  class="reveal-form"
+                                                  method="post"
+                                                  action="{{ url_for('book.reveal_stats', target_id=knight.user_id) }}">
+                                                <input type="hidden" name="page" value="{{ page }}">
+                                                <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
+                                                <button type="submit" class="btn btn-small">confirm</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <p class="empty-page">Empty page</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleRevealForm(userId) {
+            const form = document.getElementById("reveal-form-" + userId);
+            form.style.display = form.style.display === "flex" ? "none" : "flex";
+        }
+
+        const gossipBtn = document.getElementById("gossip-btn");
+        if (gossipBtn) {
+            gossipBtn.addEventListener("click", async () => {
+                const box = document.getElementById("gossip-box");
+                const response = await fetch("{{ url_for('book.get_gossip_key') }}");
+                const data = await response.json();
+
+                box.style.display = "flex";
+                if (response.ok) {
+                    const status = data.used_today ? "already used today" : "available today";
+                    box.innerHTML = `<strong>${data.key}</strong><small>${status}</small>`;
+                } else {
+                    box.textContent = data.error || "Error";
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -4,16 +4,17 @@ from models import Knight, User
 def create_user(username, email, password, role, house_id=None, photo_id=None,
                 stats=None, knight_type="regular"):
 
-    user = User(username=username, email=email, role=role,
-                house_id=house_id, photo_id=photo_id)
+    user = User(username=username, email=email, role=role, house_id=house_id)
     user.set_password(password)
     db.session.add(user)
+    db.session.flush()
 
     if role == "knight":
-        knight = Knight(user=user, knight_type=knight_type)
+        knight = Knight(user_id=user.id, knight_type=knight_type, strength=stats["strength"], dexterity=stats["dexterity"], constitution=stats["constitution"])
         db.session.add(knight)
 
     db.session.commit()
+    return user
 
 
 #read
