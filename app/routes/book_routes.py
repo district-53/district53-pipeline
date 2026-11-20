@@ -28,6 +28,8 @@ def book():
             house = db.session.get(House, person.house_id)
         if person.role == "knight":
             knight = db.session.get(Knight, person.id)
+            if knight and spy_service.is_revealed(current_user.id, knight.user_id):
+                stats = knight.get_stats()
             
     gossip = None
     if current_user.role == "knight":
