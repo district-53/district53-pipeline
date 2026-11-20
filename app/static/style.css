@@ -232,7 +232,6 @@ input {
 }
 
 .reveal-form {
-    display: none;
     flex-direction: column;
     gap: 8px;
     margin-top: 8px;
