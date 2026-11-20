@@ -1,7 +1,5 @@
 from extensions import db
 from models import Knight, User
-from models.knights import KNIGHT_TYPES
-from models.user import ROLES
 
 #write
 
