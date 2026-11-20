@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from extensions import db
 from models import House, Knight, User
 from services import spy_service
+from repositories.knight_repo import can_see_stats
 
 book_bp = Blueprint("book", __name__)
 
@@ -28,7 +29,7 @@ def book():
             house = db.session.get(House, person.house_id)
         if person.role == "knight":
             knight = db.session.get(Knight, person.id)
-            if knight and spy_service.is_revealed(current_user.id, knight.user_id):
+            if knight and can_see_stats(current_user, knight):
                 stats = knight.get_stats()
             
     gossip = None
