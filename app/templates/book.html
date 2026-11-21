@@ -89,6 +89,12 @@
                                             </details>
                                         {% endif %}
                                     {% endif %}
+
+                                    {% if current_user.role == 'noble' and kind == 'knight' and current_user.house_id == person.house_id %}
+                                        <form class="reveal-form" method="post" action="">
+                                            <button type="submit" class="btn btn-small">exile</button>
+                                        </form>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         {% else %}
