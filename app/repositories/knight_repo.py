@@ -1,6 +1,7 @@
 from extensions import db
-from models import Knight, Spy
+from models import User, Knight, Spy
 from models.utils import today
+from services.spy_service import is_revealed
 
 
 def get_knight(user_id):
@@ -21,5 +22,8 @@ def can_see_stats(viewer, knight):
     if knight.knight_type == "white":
         return True
     if viewer.role == "knight":
-        return has_active_reveal(viewer.id, knight.user_id)
+        target = db.session.get(User, knight.user_id)
+        if target.house_id == viewer.house_id and viewer.house_id is not None:
+            return True
+        return is_revealed(viewer.id, knight.user_id)
     return False
