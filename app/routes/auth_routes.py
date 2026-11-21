@@ -36,6 +36,17 @@ def signup(role):
         email = request.form.get("email", "").strip().lower()
         password = request.form.get('password', "")
 
+        existing = User.query.filter_by(username=username).first()
+        if existing and existing.email == email:
+            flash("You already have an account. Please log in.")
+            return redirect(url_for("auth.login"))
+        if existing:
+            return render_template("signup.html", role=role, houses=houses, form={},
+                                   error="Username already taken"), 400
+        if User.query.filter_by(email=email).first():
+            return render_template("signup.html", role=role, houses=houses, form={},
+                                   error="Email already registered"), 400
+
         house_id = None
         if role in ("knight", "noble"):
             house_id = request.form.get("house_id", type=int)
