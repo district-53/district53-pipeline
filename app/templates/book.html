@@ -1,3 +1,48 @@
+{% macro book_page(entry) %}
+    <div class="page">
+        {% if entry %}
+            {% if entry.person.photo_id %}
+                <img class="portrait" src="{{ url_for('pictures.get_picture', picture_id=entry.person.photo_id) }}" alt="{{ entry.person.username }}">
+            {% else %}
+                <div class="portrait">no photo</div>
+            {% endif %}
+
+            <h2>{{ entry.person.username }}</h2>
+            {% if entry.house %}
+                <p>House {{ entry.house.name }}</p>
+                <p><i>{{ entry.house.motto }}</i></p>
+            {% endif %}
+
+            {% if entry.knight %}
+                <h3>Stats{% if entry.knight.knight_type == 'white' %} · White Knight{% endif %}</h3>
+                {% if entry.stats %}
+                    <p>Strength: {{ entry.stats.strength }}</p>
+                    <p>Dexterity: {{ entry.stats.dexterity }}</p>
+                    <p>Constitution: {{ entry.stats.constitution }}</p>
+                {% else %}
+                    <p class="locked">hidden</p>
+
+                    {% if current_user.role == 'knight' and current_user.id != entry.person.id %}
+                        <details class="reveal-area">
+                            <summary>reveal stats</summary>
+                            <form class="reveal-form" method="post"
+                                  action="{{ url_for('book.reveal_stats', target_id=entry.person.id) }}">
+                                <input type="hidden" name="house" value="{{ house }}">
+                                <input type="hidden" name="spread" value="{{ spread }}">
+                                <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
+                                <button type="submit" class="btn btn-small">confirm</button>
+                            </form>
+                        </details>
+                    {% endif %}
+                {% endif %}
+
+                {% if current_user.role == 'noble' and current_user.house_id and entry.person.house_id == current_user.house_id %}
+                    <button type="button" class="btn btn-small" disabled>exile</button>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+{% endmacro %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +52,9 @@
 </head>
 <body>
     <div class="book-layout">
+        <input type="checkbox" id="sidebar-toggle">
+        <label for="sidebar-toggle" class="sidebar-btn">☰</label>
+
         <div class="sidebar">
             <p>{{ current_user.username }}</p>
 
@@ -22,10 +70,7 @@
                 <summary>{{ 'knights' if kind == 'knight' else 'nobles' }} ({{ people|length }})</summary>
                 <ul class="people-list">
                     {% for p in people %}
-                        <li>
-                            <a href="{{ url_for('book.book', kind=kind, id=p.id) }}"
-                               class="{% if person and p.id == person.id %}active{% endif %}">{{ p.username }}</a>
-                        </li>
+                        <li><a href="{{ url_for('book.book', kind=kind, house=house, spread=loop.index0 // 2) }}">{{ p.username }}</a></li>
                     {% else %}
                         <li>nobody yet</li>
                     {% endfor %}
@@ -34,6 +79,10 @@
         </div>
 
         <div class="main-content">
+            {% if kind == 'knight' %}
+                <a href="{{ url_for('book.book', kind='noble') }}" class="book-edge book-edge-top">Book of Nobles</a>
+            {% endif %}
+
             <a href="{{ url_for('auth.logout') }}" class="settings-btn" title="Log out">⏻</a>
 
             <div class="center-column">
@@ -49,57 +98,37 @@
 
                 <div class="book-wrapper">
                     <div class="bookmarks">
-                        <a href="{{ url_for('book.book', kind='knight') }}" class="bookmark {% if kind == 'knight' %}active{% endif %}">knights</a>
-                        <a href="{{ url_for('book.book', kind='noble') }}" class="bookmark {% if kind == 'noble' %}active{% endif %}">nobles</a>
+                        <a href="{{ url_for('book.book', kind=kind, house=0) }}" class="bookmark {% if house == 0 %}active{% endif %}">all</a>
+                        {% for h in houses %}
+                            <a href="{{ url_for('book.book', kind=kind, house=h.id) }}" class="bookmark {% if house == h.id %}active{% endif %}">{{ h.name }}</a>
+                        {% endfor %}
                     </div>
 
                     <div class="book">
-                        {% if person %}
-                            <div class="page">
-                                {% if person.photo_id %}
-                                    <img class="portrait" src="{{ url_for('pictures.get_picture', picture_id=person.photo_id) }}" alt="{{ person.username }}">
-                                {% else %}
-                                    <div class="portrait">no photo</div>
-                                {% endif %}
-                                <h2>{{ person.username }}</h2>
-                                {% if house %}
-                                    <p>House {{ house.name }}</p>
-                                    <p><i>{{ house.motto }}</i></p>
-                                {% endif %}
-                            </div>
-
-                            <div class="page">
-                                {% if knight %}
-                                    <h3>Stats{% if knight.knight_type == 'white' %} · White Knight{% endif %}</h3>
-                                    {% if stats %}
-                                        <p>Strength: {{ stats.strength }}</p>
-                                        <p>Dexterity: {{ stats.dexterity }}</p>
-                                        <p>Constitution: {{ stats.constitution }}</p>
-                                    {% else %}
-                                        <p class="locked">hidden</p>
-
-                                        {% if current_user.role == 'knight' and current_user.id != person.id %}
-                                            <details class="reveal-area">
-                                                <summary>reveal stats</summary>
-                                                <form class="reveal-form" method="post"
-                                                      action="{{ url_for('book.reveal_stats', target_id=person.id) }}">
-                                                    <input type="text" name="gossip_key" placeholder="GOSP-XXXXXXXX" required>
-                                                    <button type="submit" class="btn btn-small">confirm</button>
-                                                </form>
-                                            </details>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endif %}
-                            </div>
+                        {% if left %}
+                            {{ book_page(left) }}
+                            {{ book_page(right) }}
                         {% else %}
                             <div class="page"><p>The book is empty.</p></div>
                             <div class="page"></div>
                         {% endif %}
                     </div>
+
+                    <div class="page-nav">
+                        {% if spread > 0 %}
+                            <a href="{{ url_for('book.book', kind=kind, house=house, spread=spread - 1) }}" class="btn">‹</a>
+                        {% endif %}
+                        {% if has_next %}
+                            <a href="{{ url_for('book.book', kind=kind, house=house, spread=spread + 1) }}" class="btn">›</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+
+            {% if kind == 'noble' %}
+                <a href="{{ url_for('book.book', kind='knight') }}" class="book-edge book-edge-bottom">Book of Knights</a>
+            {% endif %}
         </div>
     </div>
-
 </body>
 </html>
