@@ -6,6 +6,7 @@ from storage import init_storage
 from routes.auth_routes import auth_bp
 from routes.book_routes import book_bp
 from routes.picture_routes import picture_bp
+from routes.exile_routes import exile_bp
 from data.add_data import add_people, add_houses
 
 def create_app():
@@ -20,6 +21,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(book_bp)
     app.register_blueprint(picture_bp)
+    app.register_blueprint(exile_bp)
 
 
     @app.cli.command("init-db")
