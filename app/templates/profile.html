@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
     <div class="main-content">
         <div class="center-column">
             {% with messages = get_flashed_messages() %}
@@ -22,29 +21,25 @@
             <div class="book-wrapper">
                 <div class="book">
                     <div class="page">
-                        {% if current_user.id == user.id %}
 
+                        {% if current_user.id == user.id %}
                             <form method="POST"
                                   action="{{ url_for('profile.view_profile', user_id=user.id) }}"
                                   enctype="multipart/form-data"
                                   class="profile-edit-wrapper">
 
                                 <div class="profile-row">
-
-                                    <div class="avatar-column">
-                                        <label for="photo-input" class="avatar-upload-label" title="Click to change photo">
-                                            {% if user.photo_id %}
-                                                <img id="avatar-preview" class="portrait"
-                                                     src="{{ url_for('pictures.get_picture', picture_id=user.photo_id) }}"
-                                                     alt="{{ user.username }}">
-                                            {% else %}
-                                                <div id="avatar-placeholder" class="portrait">no photo</div>
-                                                <img id="avatar-preview" class="portrait" style="display: none;" alt="Preview">
-                                            {% endif %}
-                                            <span class="upload-hint">Change photo</span>
-                                        </label>
-                                        <input type="file" id="photo-input" name="photo" accept="image/*" hidden>
-                                    </div>
+                                    <label class="avatar-upload-label" title="Click to change photo">
+                                        {% if user.photo_id %}
+                                            <img class="portrait"
+                                                 src="{{ url_for('pictures.get_picture', picture_id=user.photo_id) }}"
+                                                 alt="{{ user.username }}">
+                                        {% else %}
+                                            <div class="portrait">no photo</div>
+                                        {% endif %}
+                                        <span class="upload-hint">Change photo</span>
+                                        <input type="file" name="photo" accept="image/*" hidden>
+                                    </label>
 
                                     <div class="profile-details">
                                         <div class="form-group">
@@ -58,74 +53,81 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>New Password (leave blank to keep current)</label>
-                                            <input type="password" name="password" placeholder="••••••••">
+                                            <label>New password (leave blank to keep current)</label>
+                                            <input type="password" name="password" placeholder="••••••••" autocomplete="new-password">
                                         </div>
 
-                                        <div class="form-group">
-                                            <label>Role</label>
-                                            <select name="role" id="role-select">
-                                                <option value="knight" {% if user.role == 'knight' %}selected{% endif %}>Knight</option>
-                                                <option value="noble" {% if user.role == 'noble' %}selected{% endif %}>Noble</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group" id="house-group">
-                                            <label>House</label>
-                                            <select name="house_id">
-                                                <option value="">— No House —</option>
-                                                {% for h in houses %}
-                                                    <option value="{{ h.id }}" {% if user.house_id == h.id %}selected{% endif %}>
-                                                        {{ h.name }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                            {% if user.house %}
-                                                <p class="motto"><i>«{{ user.house.motto }}»</i></p>
-                                            {% endif %}
-                                        </div>
-
-
-                                        <div class="stats-edit-grid" id="knight-stats-group"
-                                             style="{% if user.role != 'knight' %}display: none;{% endif %}">
+                                        {% if user.role in ('knight', 'noble') %}
                                             <div class="form-group">
-                                                <label>Strength</label>
-                                                <input type="number" name="strength" value="{{ knight.strength if knight else 10 }}">
+                                                <label>Role</label>
+                                                <select name="role">
+                                                    <option value="knight" {% if user.role == 'knight' %}selected{% endif %}>Knight</option>
+                                                    <option value="noble" {% if user.role == 'noble' %}selected{% endif %}>Noble</option>
+                                                </select>
                                             </div>
+
                                             <div class="form-group">
-                                                <label>Dexterity</label>
-                                                <input type="number" name="dexterity" value="{{ knight.dexterity if knight else 10 }}">
+                                                <label>House</label>
+                                                <select name="house_id" required>
+                                                    <option value="">choose house</option>
+                                                    {% for h in houses %}
+                                                        <option value="{{ h.id }}" {% if user.house_id == h.id %}selected{% endif %}>{{ h.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if user.house %}
+                                                    <p class="motto"><i>«{{ user.house.motto }}»</i></p>
+                                                {% endif %}
                                             </div>
-                                            <div class="form-group">
-                                                <label>Constitution</label>
-                                                <input type="number" name="constitution" value="{{ knight.constitution if knight else 10 }}">
+
+                                            <div class="stats-edit-grid">
+                                                <div class="form-group">
+                                                    <label>Strength</label>
+                                                    <input type="number" name="strength" min="1" max="100" value="{{ knight.strength if knight else 10 }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Dexterity</label>
+                                                    <input type="number" name="dexterity" min="1" max="100" value="{{ knight.dexterity if knight else 10 }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Constitution</label>
+                                                    <input type="number" name="constitution" min="1" max="100" value="{{ knight.constitution if knight else 10 }}">
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
 
                                         <button type="submit" class="btn btn-small">Save changes</button>
                                     </div>
                                 </div>
                             </form>
                         {% else %}
-                            
+                            <div class="profile-row">
+                                {% if user.photo_id %}
+                                    <img class="portrait"
+                                         src="{{ url_for('pictures.get_picture', picture_id=user.photo_id) }}"
+                                         alt="{{ user.username }}">
+                                {% else %}
+                                    <div class="portrait">no photo</div>
+                                {% endif %}
+
+                                <div class="profile-details">
+                                    <p><strong>{{ user.username }}</strong></p>
+                                    <p>Role: {{ user.role }}</p>
+                                    {% if user.house %}
+                                        <p>House {{ user.house.name }}</p>
+                                        <p class="motto"><i>«{{ user.house.motto }}»</i></p>
+                                    {% endif %}
+                                </div>
                             </div>
                         {% endif %}
 
-
-                        <div class="page-footer footer-row">
-                            <a href="{{ url_for('book.book', kind=user.role if user.role in ('knight', 'noble') else 'knight', id=user.id) }}" class="logout-btn" title="Book">
-                                Book
-                            </a>
-                            <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Log out">
-                                Log out ⏻
-                            </a>
+                        <div class="page-footer">
+                            <a href="{{ url_for('book.book', kind=user.role if user.role in ('knight', 'noble') else 'knight', id=user.id) }}" class="logout-btn">Book</a>
+                            <a href="{{ url_for('auth.logout') }}" class="logout-btn">Log out ⏻</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    
 </body>
 </html>

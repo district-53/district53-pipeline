@@ -42,6 +42,16 @@ body {
     font-weight: bold;
 }
 
+button.btn {
+    width: 100%;
+    font-family: inherit;
+}
+
+.btn-small {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
 input {
     width: 100%;
     padding: 12px;
@@ -52,6 +62,16 @@ input {
     background: #fff;
 }
 
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #98a2b3;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #fff;
+}
+
+/* Welcome */
 .top-buttons {
     display: flex;
     gap: 15px;
@@ -74,6 +94,7 @@ input {
     color: #667085;
 }
 
+/* Sign up */
 .roles {
     display: flex;
     gap: 10px;
@@ -105,6 +126,7 @@ input {
     background: #f9fafb;
 }
 
+/* Book layout */
 .book-layout {
     display: flex;
     width: 100vw;
@@ -139,12 +161,40 @@ input {
     font-size: 11px;
 }
 
+.gossip-box strong {
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+.people summary {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 6px 0;
+}
+
+.people-list {
+    list-style: none;
+    padding: 0;
+}
+
+.people-list a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+}
+
+.people-list a:hover, .people-list a.active {
+    background: #eaecf0;
+    font-weight: bold;
+}
+
 .main-content {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
 }
 
 .center-column {
@@ -167,16 +217,34 @@ input {
     margin-top: 30px;
 }
 
-.bookmark {
+.bookmarks {
     position: absolute;
     top: -36px;
     left: 40px;
+    display: flex;
+    gap: 6px;
+}
+
+.bookmark {
     padding: 8px 18px;
     background: #ffffff;
     border: 1px solid #98a2b3;
     border-bottom: none;
     border-radius: 8px 8px 0 0;
     font-size: 14px;
+    color: #333;
+    text-decoration: none;
+}
+
+.bookmarks .bookmark.active {
+    background: #eaecf0;
+    font-weight: bold;
+}
+
+.book-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
 }
 
 .book {
@@ -206,24 +274,16 @@ input {
     border-right: 1px solid #98a2b3;
 }
 
-.knight-info h3 {
-    margin: 0 0 8px 0;
+.book .page:only-child {
+    border-right: none;
 }
 
-.knight-info p {
-    margin: 4px 0;
+.empty-page {
+    color: #98a2b3;
     font-size: 14px;
 }
 
-.stats-box {
-    margin-top: 14px;
-    padding: 10px;
-    border: 1px solid #d0d5dd;
-    border-radius: 8px;
-    background: #f9fafb;
-}
-
-.hidden-stats {
+.locked {
     color: #667085;
 }
 
@@ -232,6 +292,7 @@ input {
 }
 
 .reveal-form {
+    display: flex;
     flex-direction: column;
     gap: 8px;
     margin-top: 8px;
@@ -240,97 +301,6 @@ input {
 .reveal-form input {
     padding: 8px;
     font-size: 13px;
-}
-
-.btn-small {
-    padding: 8px 12px;
-    font-size: 13px;
-}
-
-.empty-page {
-    color: #98a2b3;
-    font-size: 14px;
-}
-
-.settings-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 42px;
-    height: 42px;
-    background: #ffffff;
-    border: 1px solid #98a2b3;
-    border-radius: 10px;
-    font-size: 20px;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
-.settings-btn:hover {
-    background: #eaecf0;
-}
-
-select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #98a2b3;
-    border-radius: 10px;
-    font-size: 14px;
-    background: #fff;
-}
-
-button.btn {
-    width: 100%;
-    font-family: inherit;
-}
-
-a.settings-btn {
-    text-decoration: none;
-}
-
-.gossip-box strong {
-    white-space: nowrap;
-    font-size: 14px;
-}
-
-.people-list {
-    list-style: none;
-    padding: 0;
-}
-
-.people-list a {
-    display: block;
-    padding: 6px 10px;
-    border-radius: 8px;
-    color: #333;
-    text-decoration: none;
-}
-
-.people-list a:hover, .people-list a.active {
-    background: #eaecf0;
-    font-weight: bold;
-}
-
-.bookmarks {
-    position: absolute;
-    top: -36px;
-    left: 40px;
-    display: flex;
-    gap: 6px;
-}
-
-.bookmarks .bookmark {
-    position: static;
-    color: #333;
-    text-decoration: none;
-}
-
-.bookmarks .bookmark.active {
-    background: #eaecf0;
-    font-weight: bold;
 }
 
 .portrait {
@@ -345,41 +315,18 @@ a.settings-btn {
     color: #667085;
 }
 
-.locked {
-    color: #667085;
-}
-
-.people summary {
-    cursor: pointer;
-    font-weight: bold;
-    padding: 6px 0;
-}
-
-.page-footer {
+.book-side-actions {
     display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.logout-btn {
-    padding: 8px 14px;
-    background: #ffffff;
-    border: 1px solid #98a2b3;
-    border-radius: 10px;
-    font-size: 14px;
-    color: #333;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.logout-btn:hover {
-    background: #eaecf0;
+.book-side-actions .logout-btn {
+    width: 100%;
+    white-space: nowrap;
 }
 
 
-/* Блок профілю: фото зліва, текстові дані праворуч */
 .profile-row {
     display: flex;
     gap: 24px;
@@ -392,18 +339,24 @@ a.settings-btn {
     flex-shrink: 0;
 }
 
+.avatar-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #667085;
+}
+
 .profile-details {
     display: flex;
     flex-direction: column;
     gap: 8px;
     flex: 1;
-}
-
-.profile-details h2 {
-    margin: 0 0 6px 0;
-    font-size: 22px;
-    border-bottom: 1px solid #d0d5dd;
-    padding-bottom: 6px;
 }
 
 .profile-details p {
@@ -417,39 +370,6 @@ a.settings-btn {
     color: #667085;
 }
 
-/* Нижній футер сторінки */
-.page-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 24px;
-}
-
-.logout-btn {
-    margin-left: auto;
-    padding: 8px 14px;
-    background: #ffffff;
-    border: 1px solid #98a2b3;
-    border-radius: 10px;
-    font-size: 14px;
-    color: #333;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.logout-btn:hover {
-    background: #eaecf0;
-}
-
-
-.profile-edit-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 .form-group {
     display: flex;
     flex-direction: column;
@@ -460,13 +380,6 @@ a.settings-btn {
     font-size: 12px;
     font-weight: bold;
     color: #667085;
-}
-
-.profile-edit-form input,
-.profile-edit-form select {
-    padding: 8px 10px;
-    font-size: 13px;
-    text-align: left;
 }
 
 .stats-edit-grid {
@@ -482,25 +395,20 @@ a.settings-btn {
     text-align: center;
 }
 
-/* Базовий контейнер футера в правому нижньому куті */
+
+.profile-edit-wrapper:has(select[name="role"] option[value="noble"]:checked) .stats-edit-grid {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
 .page-footer {
     display: flex;
     justify-content: flex-end;
-    align-items: flex-end;
+    align-items: center;
     gap: 8px;
     margin-top: 24px;
 }
 
-/* Для book.html: кнопки одна над одною */
-.page-footer.footer-column {
-    flex-direction: column;
-}
-
-/* Для profile.html: кнопки в рядок (Book зліва, Log out справа) */
-.page-footer.footer-row {
-    flex-direction: row;
-    align-items: center;
-}
 
 .logout-btn {
     padding: 8px 14px;
@@ -514,29 +422,10 @@ a.settings-btn {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    min-width: 96px; /* Щоб кнопки одна над одною мали однакову ширину */
+    min-width: 96px;
 }
 
 .logout-btn:hover {
     background: #eaecf0;
     font-weight: bold;
-}
-
-/* Рядок: книга + зовнішні кнопки праворуч */
-.book-row {
-    display: flex;
-    align-items: flex-start; /* Вирівнювання строго по верхньому краю .book */
-    gap: 14px;
-}
-
-/* Вертикальна колонка кнопок ззовні справа від книги */
-.book-side-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.book-side-actions .logout-btn {
-    width: 100%;
-    white-space: nowrap;
 }
